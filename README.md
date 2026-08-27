@@ -205,6 +205,15 @@ ai-usage-cli/
 
 ---
 
+## 🙏 Acknowledgements
+
+- Based on the original [ai-usage-cli](https://github.com/ttieli/ai-usage-cli) by [@ttieli](https://github.com/ttieli).
+- Enhanced by [@jason9075](https://github.com/jason9075) with Google Antigravity (AGY) support, reversed progress bar fix, and Ubuntu GNOME native DBus top panel system tray integration.
+
+---
+
 ## 📄 License
 
-MIT License. Copyright (c) 2026.
+MIT License.
+- Copyright (c) 2025 ttieli
+- Copyright (c) 2026 jason9075

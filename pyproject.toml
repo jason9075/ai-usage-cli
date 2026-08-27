@@ -1,14 +1,15 @@
 [project]
 name = "ai-usage-cli"
 version = "0.1.1"
-description = "CLI tool to check AI coding tool usage quotas (Claude, Codex, Gemini, Copilot, z.ai)"
+description = "CLI & Ubuntu system tray tool to check AI coding tool usage quotas (Antigravity, Claude, Codex, Gemini, Copilot, z.ai)"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
+    { name = "jason9075", email = "jason9075@gmail.com" },
     { name = "ttieli", email = "8285173+ttieli@users.noreply.github.com" },
 ]
-keywords = ["ai", "cli", "usage", "quota", "claude", "codex", "gemini", "copilot"]
+keywords = ["ai", "cli", "usage", "quota", "antigravity", "agy", "claude", "codex", "gemini", "copilot", "tray", "ubuntu"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -37,9 +38,9 @@ ai-usage = "ai_usage.main:main"
 ai-usage-tray = "ai_usage.tray:main"
 
 [project.urls]
-Homepage = "https://github.com/ttieli/ai-usage-cli"
-Repository = "https://github.com/ttieli/ai-usage-cli"
-Issues = "https://github.com/ttieli/ai-usage-cli/issues"
+Homepage = "https://github.com/jason9075/ai-usage-cli"
+Repository = "https://github.com/jason9075/ai-usage-cli"
+Issues = "https://github.com/jason9075/ai-usage-cli/issues"
 
 [build-system]
 requires = ["hatchling"]
