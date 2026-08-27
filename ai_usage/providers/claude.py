@@ -67,28 +67,41 @@ class ClaudeProvider(BaseProvider):
         return None
 
     def _parse_identity(self, result: UsageResult) -> None:
+        oauth = {}
         raw = read_keychain("Claude Code-credentials")
-        if not raw:
-            return
-        try:
-            creds = json.loads(raw)
-            oauth = creds.get("claudeAiOauth", {})
-            result.email = oauth.get("email", "")
-            tier_lower = (oauth.get("rateLimitTier") or "").lower()
-            if "max" in tier_lower:
-                result.plan = "Max"
-            elif "pro" in tier_lower:
-                result.plan = "Pro"
-            elif "team" in tier_lower:
-                result.plan = "Team"
-            elif "enterprise" in tier_lower:
-                result.plan = "Enterprise"
-            elif "free" in tier_lower:
-                result.plan = "Free"
-            else:
-                result.plan = ""
-        except (json.JSONDecodeError, KeyError):
-            pass
+        if raw:
+            try:
+                creds = json.loads(raw)
+                oauth = creds.get("claudeAiOauth", {})
+            except (json.JSONDecodeError, KeyError):
+                pass
+        else:
+            cred_file = Path.home() / ".claude" / ".credentials.json"
+            if cred_file.exists():
+                try:
+                    creds = json.loads(cred_file.read_text())
+                    oauth = creds.get("claudeAiOauth", {})
+                except (json.JSONDecodeError, KeyError):
+                    pass
+
+        result.email = oauth.get("email", "")
+        tier_lower = (oauth.get("rateLimitTier") or "").lower()
+        sub_lower = (oauth.get("subscriptionType") or "").lower()
+
+        if "max" in tier_lower or "max" in sub_lower:
+            result.plan = "Max"
+        elif "pro" in tier_lower or "pro" in sub_lower:
+            result.plan = "Pro"
+        elif "team" in tier_lower or "team" in sub_lower:
+            result.plan = "Team"
+        elif "enterprise" in tier_lower or "enterprise" in sub_lower:
+            result.plan = "Enterprise"
+        elif "free" in tier_lower or "free" in sub_lower:
+            result.plan = "Free"
+        elif sub_lower:
+            result.plan = sub_lower.title()
+        else:
+            result.plan = ""
 
     def _parse_usage(self, data: dict, result: UsageResult) -> None:
         for key, label in [

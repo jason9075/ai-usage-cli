@@ -1,131 +1,210 @@
-# ai-usage-cli
+# AI Usage CLI & Ubuntu Tray Monitor 🤖📊
 
-[![PyPI version](https://img.shields.io/pypi/v/ai-usage-cli)](https://pypi.org/project/ai-usage-cli/)
-[![Python](https://img.shields.io/pypi/pyversions/ai-usage-cli)](https://pypi.org/project/ai-usage-cli/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
+[![Linux](https://img.shields.io/badge/OS-Linux%20%2F%20Ubuntu-orange.svg)](#)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Check your AI coding tool usage quotas from the terminal. Supports **Claude Code**, **Codex**, **Gemini**, **GitHub Copilot**, and **z.ai**.
+A unified CLI and Linux / Ubuntu Top Bar system tray monitor for tracking your AI coding assistant usage quotas in real-time.
 
-```
+Supports **Google Antigravity (AGY)**, **Claude Code**, **OpenAI Codex**, **Gemini Code Assist**, **GitHub Copilot**, and **z.ai (GLM)**.
+
+---
+
+## ✨ Features
+
+- 🖥️ **Ubuntu Top Bar Tray Monitor**: Native AppIndicator / StatusNotifierItem on Ubuntu GNOME top panel.
+- 🖱️ **Mouse Hover Tooltip**: Move your mouse over the top panel icon for an instant multi-line quota summary.
+- 🔋 **Proportional Progress Bars**: Visual bars where filled blocks represent remaining quota percentage (`% left`).
+- 🤖 **Multi-Provider Support**:
+  - **Google Antigravity (AGY)**: Automatic credential discovery from Linux SecretStorage / macOS Keychain, model tier separation (`Flash` vs `Claude & Pro`), and 5h rolling session turn tracking.
+  - **Claude Code**: OAuth token inspection, Session (5h) & Weekly (7d) rate limits, Linux identity parsing (`[Team]` / `[Pro]`), and monthly extra cost tracking.
+  - **OpenAI Codex**: OAuth token refresh, 5h & 7d window limits.
+  - **Gemini Code Assist**: Token refresh & rate limits.
+  - **GitHub Copilot & z.ai**: Quota and API status.
+- ⚡ **Auto-start & Systemd Integration**: Includes `systemd --user` unit and `.desktop` autostart launcher.
+- 📋 **Click Actions**: Instant refresh, one-click copy summary with desktop notifications, and direct config editing.
+
+---
+
+## 📸 CLI Output Preview
+
+```text
 $ ai-usage
 
-  Claude  (oauth)  [Max]  user@example.com
-    Session (5h)         72.0% left  [█████░░░░░░░░░░░░░░░]  resets in 4h12m
-    Weekly (7d)          85.0% left  [███░░░░░░░░░░░░░░░░░]  resets in 132h
+  Antigravity (AGY)  (oauth)  [Standard]  jason9075@gmail.com
+    Flash (Gemini 3.7 Flash (High))   94.0% left  [███████████████████░]  resets in 4h44m
+    Claude & Pro models              100.0% left  [████████████████████]
 
-  Codex  (oauth)  [Plus]
-    Daily                95.2% left  [█░░░░░░░░░░░░░░░░░░░]
+  Claude  (oauth)  [Team]
+    Session (5h)                      64.0% left  [█████████████░░░░░░░]  resets in 3h43m
+    Weekly (7d)                       65.0% left  [█████████████░░░░░░░]  resets in 4d5h13m
+    cost: $50.28 / $51.00 (monthly)
 
-  Gemini  (oauth)  [Free]
-    Per-minute          100.0% left  [░░░░░░░░░░░░░░░░░░░░]
-    Daily                88.4% left  [██░░░░░░░░░░░░░░░░░░]  resets in 16h
+  Codex  (oauth)  [plus]  ajle2721@gmail.com
+    Session (5h)                      46.0% left  [█████████░░░░░░░░░░░]  resets in 4h35m
+    Weekly (7d)                       77.0% left  [███████████████░░░░░]  resets in 5d4h42m
 ```
 
-## Installation
+---
 
-**Recommended** — install with [pipx](https://pipx.pypa.io/) for an isolated global command:
+## 🖱️ Ubuntu Top Bar Hover Tooltip Preview
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│ Activities          Aug 27 17:51          [🤖] [📶] [🔋] [⚙️]  │
+└────────────────────────────────────────────────────────────────────────┘
+                                              │
+                      ┌───────────────────────┴─────────────────────────┐
+                      │ 🤖 AI Usage Quotas                              │
+                      │ ──────────────────────────                      │
+                      │ Antigravity (AGY) [Standard]                    │
+                      │   • Flash (Gemini 3.7 Flash): 94% left (4h44m)  │
+                      │   • Claude & Pro models: 100% left              │
+                      │ Claude [Team]                                   │
+                      │   • Session (5h): 64% left (3h43m)              │
+                      │   • Weekly (7d): 65% left (4d5h)                │
+                      │   • Cost: $50.28 / $51.00                       │
+                      │ Codex [plus]                                    │
+                      │   • Session (5h): 46% left (4h35m)              │
+                      │   • Weekly (7d): 77% left (5d4h)                │
+                      │ 🕒 Updated: 17:51:22                            │
+                      └─────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Installation & Quick Start
+
+### 1. One-Command Setup
 
 ```bash
-pipx install ai-usage-cli
+cd /home/jason9075/projects/ai-usage-cli
+./install.sh
 ```
 
-Or with pip:
+`install.sh` will:
+1. Install `ai-usage` and `ai-usage-tray` globally using `uv tool install`.
+2. Install high-res app icon to `~/.local/share/icons/ai-usage.png`.
+3. Register application launcher and auto-start entries.
+4. Enable and launch the `systemd --user` background tray monitor.
+
+### 2. Manual Installation via `uv`
 
 ```bash
-pip install ai-usage-cli
+uv tool install --editable /home/jason9075/projects/ai-usage-cli --force
 ```
 
-## Usage
+---
+
+## 📖 Usage
+
+### CLI Commands
 
 ```bash
-ai-usage                      # all enabled providers
-ai-usage -p claude             # single provider
-ai-usage -p claude codex       # multiple providers
-ai-usage -a                    # include disabled providers
-ai-usage --json                # JSON output (for scripting)
-ai-usage --plain               # plain text (no color, no unicode)
-ai-usage | grep Claude         # auto-switches to plain when piped
+# Check all enabled providers
+ai-usage
+
+# Query specific providers
+ai-usage -p agy claude
+ai-usage -p codex
+
+# Include disabled providers
+ai-usage -a
+
+# Output as JSON (useful for scripts & statusbars)
+ai-usage --json
+
+# Plain text output (no colors / unicode)
+ai-usage --plain
+
+# Start system tray monitor directly in foreground
+ai-usage --tray
+# or
+ai-usage-tray -i 300
 ```
 
-## Supported Providers
+### Systemd Service Management
 
-| Provider | Credential Source |
-|----------|-------------------|
-| Claude Code | macOS Keychain (`Claude Code-credentials`) or `~/.claude/.credentials.json` |
-| Codex | `~/.codex/auth.json` (auto-refreshes OAuth token) |
-| Gemini | `~/.gemini/oauth_creds.json` (auto-refreshes OAuth token) |
-| GitHub Copilot | `apiKey` in `~/.codexbar/config.json` |
-| z.ai | `apiKey` in `~/.codexbar/config.json` or `Z_AI_API_KEY` env var |
+```bash
+# Check tray monitor status
+systemctl --user status ai-usage-tray
 
-## Configuration
+# Restart tray monitor
+systemctl --user restart ai-usage-tray
 
-Provider settings are stored in `~/.codexbar/config.json`. Each provider can be enabled/disabled and configured with API keys where needed.
+# View live tray logs
+journalctl --user -u ai-usage-tray -f
 
-Example:
+# Stop tray monitor
+systemctl --user stop ai-usage-tray
+```
+
+---
+
+## ⚙️ Configuration
+
+Settings are stored in `~/.codexbar/config.json`:
 
 ```json
 {
   "providers": {
-    "claude": { "enabled": true },
-    "codex": { "enabled": true },
-    "gemini": { "enabled": true },
-    "copilot": { "enabled": false, "apiKey": "ghu_..." },
-    "zai": { "enabled": false, "apiKey": "..." }
+    "agy": {
+      "enabled": true
+    },
+    "claude": {
+      "enabled": true
+    },
+    "codex": {
+      "enabled": true
+    },
+    "gemini": {
+      "enabled": true
+    },
+    "copilot": {
+      "enabled": false
+    },
+    "zai": {
+      "enabled": false,
+      "apiKey": "YOUR_Z_AI_KEY"
+    }
   }
 }
 ```
 
-## Platform Notes
+---
 
-- **macOS**: Claude credentials are read from the system Keychain. All other providers use file-based credentials and work cross-platform.
-- **Linux**: Claude credentials fall back to `~/.claude/.credentials.json`. All other providers work the same as macOS.
+## 🏗️ Project Architecture
 
-## Troubleshooting
-
-**Gemini: `Token expired, refresh failed`**
-
-`ai-usage` refreshes the Gemini token by reading the OAuth client ID/secret from the locally installed `gemini` CLI's `oauth2.js`. The resolver scans common install layouts (Homebrew, npm global, fnm/nvm, Nix) and transparently follows shell wrappers. If your install is in an unusual location, set:
-
-```bash
-export GEMINI_OAUTH_JS=/path/to/@google/gemini-cli-core/dist/src/code_assist/oauth2.js
+```text
+ai-usage-cli/
+├── ai_usage/
+│   ├── __init__.py
+│   ├── main.py              # CLI parser and runner
+│   ├── tray.py              # Native DBus StatusNotifierItem & DBusMenu daemon
+│   ├── display.py           # Rich terminal renderer & progress bars
+│   ├── config.py            # CodexBar config loader
+│   └── providers/
+│       ├── __init__.py      # Provider registry
+│       ├── base.py          # Abstract provider base class
+│       ├── agy.py           # Antigravity (Keyring, Model tiers, Session stats)
+│       ├── claude.py        # Claude Code OAuth & Linux credentials
+│       ├── codex.py         # OpenAI Codex OAuth & token refresh
+│       ├── gemini.py        # Gemini Code Assist OAuth
+│       ├── copilot.py       # GitHub Copilot
+│       └── zai.py           # z.ai GLM API
+├── assets/
+│   ├── ai-usage.png         # 512x512 App icon
+│   ├── ai-usage-tray.desktop# Desktop launcher
+│   └── ai-usage-tray.service# Systemd user unit
+├── install.sh               # One-click installation script
+├── uninstall.sh             # Uninstallation script
+├── Makefile                 # Common build/dev targets
+├── pyproject.toml           # Project dependencies & tool scripts
+└── README.md                # Documentation
 ```
-
-**Claude: empty `plan` field**
-
-The provider only fills `plan` when the OAuth `rateLimitTier` matches a known tier (`max`, `pro`, `team`, `enterprise`, `free`). Unknown internal tiers (e.g., `default_claude_ai`) are hidden rather than echoed verbatim.
-
-## Requirements
-
-- Python 3.10+
-- Active credentials for the providers you want to query
 
 ---
 
-## 中文说明
+## 📄 License
 
-终端查询 AI 编程工具配额用量。支持 Claude Code、Codex、Gemini、GitHub Copilot、z.ai。
-
-### 安装
-
-```bash
-pipx install ai-usage-cli
-```
-
-### 使用
-
-```bash
-ai-usage                      # 查看所有已启用的 Provider
-ai-usage -p claude             # 只看 Claude
-ai-usage -p claude codex       # 看 Claude 和 Codex
-ai-usage -a                    # 包含未启用的 Provider
-ai-usage --json                # JSON 输出（适合脚本处理）
-ai-usage --plain               # 纯文本输出（无颜色、无 Unicode）
-```
-
-## Related Projects
-
-- [CodexBar](https://github.com/steipete/CodexBar) — macOS menu bar app for AI coding tool usage tracking. `ai-usage-cli` shares the same `~/.codexbar/config.json` configuration and was built as a cross-platform CLI companion.
-
-## License
-
-[MIT](LICENSE)
+MIT License. Copyright (c) 2026.

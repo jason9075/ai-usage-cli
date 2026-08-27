@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Usage Quota Monitor for Ubuntu Top Bar
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/ai-usage-tray
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target

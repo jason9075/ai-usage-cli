@@ -45,19 +45,20 @@ Supported providers:
 
 Examples:
   ai-usage                    all enabled providers
-  ai-usage -p claude          single provider
-  ai-usage -p claude codex    multiple providers
+  ai-usage -p agy claude      single or multiple providers
   ai-usage -a                 include disabled providers
+  ai-usage --tray             system tray live hover monitor
   ai-usage --json             JSON output (for scripting)
   ai-usage --plain            plain text (no color, no unicode)
   ai-usage | grep Claude      auto-switches to plain when piped
 
 Credential sources:
-  Claude   macOS Keychain "Claude Code-credentials" or ~/.claude/.credentials.json
-  Codex    ~/.codex/auth.json (auto-refreshes OAuth token)
-  Gemini   ~/.gemini/oauth_creds.json (auto-refreshes OAuth token)
-  Copilot  apiKey in ~/.codexbar/config.json
-  z.ai     apiKey in ~/.codexbar/config.json or Z_AI_API_KEY env var
+  Antigravity (agy)  System Keyring / ~/.gemini/antigravity-cli
+  Claude             macOS Keychain "Claude Code-credentials" or ~/.claude/.credentials.json
+  Codex              ~/.codex/auth.json (auto-refreshes OAuth token)
+  Gemini             ~/.gemini/oauth_creds.json (auto-refreshes OAuth token)
+  Copilot            apiKey in ~/.codexbar/config.json
+  z.ai               apiKey in ~/.codexbar/config.json or Z_AI_API_KEY env var
 
 Config: ~/.codexbar/config.json (enable/disable providers, API keys, etc.)
 """
@@ -66,7 +67,7 @@ Config: ~/.codexbar/config.json (enable/disable providers, API keys, etc.)
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="ai-usage",
-        description="Check AI coding tool usage quotas (Claude, Codex, Gemini, Copilot, z.ai)",
+        description="Check AI coding tool usage quotas (Antigravity, Claude, Codex, Gemini, Copilot, z.ai)",
         epilog=HELP_EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -97,19 +98,38 @@ def main() -> None:
         action="store_true",
         help="keep unicode but disable color",
     )
+    parser.add_argument(
+        "--tray",
+        action="store_true",
+        help="launch in system tray with live hover tooltip monitor",
+    )
+    parser.add_argument(
+        "-i", "--interval",
+        type=int,
+        default=300,
+        help="auto refresh interval in seconds for tray mode (default: 300 = 5 min)",
+    )
     args = parser.parse_args()
-
-    # Auto-detect: if stdout is not a TTY (piped), default to plain
-    is_pipe = not sys.stdout.isatty()
-    use_plain = args.plain or (is_pipe and not args.json_output)
-
-    console = Console(no_color=args.no_color)
 
     provider_names = None
     if args.provider:
         provider_names = [n.lower() for n in args.provider]
 
     enabled_only = not args.all and provider_names is None
+
+    if args.tray:
+        from .tray import run_tray
+        run_tray(
+            provider_names=provider_names,
+            enabled_only=enabled_only,
+            interval_seconds=args.interval,
+        )
+        return
+
+    # Auto-detect: if stdout is not a TTY (piped), default to plain
+    is_pipe = not sys.stdout.isatty()
+    use_plain = args.plain or (is_pipe and not args.json_output)
+    console = Console(no_color=args.no_color)
 
     try:
         results = asyncio.run(fetch_all(provider_names, enabled_only))

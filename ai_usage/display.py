@@ -14,13 +14,14 @@ if TYPE_CHECKING:
 # ── Rich (TTY) ──────────────────────────────────────────────
 
 def _bar(used_pct: float, width: int = 20) -> Text:
-    filled = int(used_pct / 100 * width)
+    rem_pct = max(0.0, min(100.0, 100.0 - used_pct))
+    filled = int(round(rem_pct / 100.0 * width))
     filled = max(0, min(width, filled))
     empty = width - filled
 
-    if used_pct < 50:
+    if rem_pct > 50:
         color = "green"
-    elif used_pct < 80:
+    elif rem_pct > 20:
         color = "yellow"
     else:
         color = "red"
@@ -34,19 +35,19 @@ def _bar(used_pct: float, width: int = 20) -> Text:
 
 
 def _format_usage(used_pct: float) -> Text:
-    remaining = 100 - used_pct
+    remaining = max(0.0, 100.0 - used_pct)
     t = Text()
 
     if used_pct >= 100:
         t.append("EXHAUSTED", style="bold red")
-    elif used_pct >= 80:
+    elif remaining <= 20:
         t.append(f"{remaining:5.1f}% left", style="bold red")
-    elif used_pct >= 50:
+    elif remaining <= 50:
         t.append(f"{remaining:5.1f}% left", style="yellow")
-    elif used_pct > 0:
+    elif remaining < 100:
         t.append(f"{remaining:5.1f}% left", style="green")
     else:
-        t.append("unused", style="green")
+        t.append("100.0% left", style="green")
 
     return t
 
@@ -77,12 +78,15 @@ def render_text(results: list[UsageResult], console: Console) -> None:
 
         for w in r.windows:
             line = Text()
-            line.append(f"    {w.label:<20} ")
+            line.append(f"    {w.label:<32} ")
             line.append_text(_format_usage(w.used_percent))
             line.append("  ")
             line.append_text(_bar(w.used_percent))
             if w.resets_at:
-                line.append(f"  resets in {w.resets_at}", style="dim")
+                if w.resets_at.lower().startswith(("active", "token", "resets")):
+                    line.append(f"  {w.resets_at}", style="dim")
+                else:
+                    line.append(f"  resets in {w.resets_at}", style="dim")
             console.print(line)
 
         if r.cost:
@@ -101,7 +105,8 @@ def render_text(results: list[UsageResult], console: Console) -> None:
 # ── Plain (stdout / pipe) ───────────────────────────────────
 
 def _plain_bar(used_pct: float, width: int = 20) -> str:
-    filled = int(used_pct / 100 * width)
+    rem_pct = max(0.0, min(100.0, 100.0 - used_pct))
+    filled = int(round(rem_pct / 100.0 * width))
     filled = max(0, min(width, filled))
     empty = width - filled
     return "[" + "#" * filled + "-" * empty + "]"
@@ -140,8 +145,14 @@ def render_plain(results: list[UsageResult]) -> None:
         for win in r.windows:
             status = _plain_status(win.used_percent)
             bar = _plain_bar(win.used_percent)
-            reset = f"  resets in {win.resets_at}" if win.resets_at else ""
-            w(f"  {win.label:<20} {status:<14} {bar}{reset}\n")
+            if win.resets_at:
+                if win.resets_at.lower().startswith(("active", "token", "resets")):
+                    reset = f"  {win.resets_at}"
+                else:
+                    reset = f"  resets in {win.resets_at}"
+            else:
+                reset = ""
+            w(f"  {win.label:<32} {status:<14} {bar}{reset}\n")
 
         if r.cost:
             cost = f"${r.cost.used:.2f}"

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AI Usage Monitor
+Comment=AI Quota Monitor in Ubuntu Top Bar
+Exec=ai-usage-tray
+Icon=ai-usage
+Terminal=false
+Categories=Utility;Development;
+X-GNOME-Autostart-enabled=true

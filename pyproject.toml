@@ -25,13 +25,16 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
+    "dbus-fast>=5.0.22",
     "httpx>=0.27",
+    "pyqt5>=5.15.11",
     "rich>=13.0",
     "truststore>=0.9",
 ]
 
 [project.scripts]
 ai-usage = "ai_usage.main:main"
+ai-usage-tray = "ai_usage.tray:main"
 
 [project.urls]
 Homepage = "https://github.com/ttieli/ai-usage-cli"

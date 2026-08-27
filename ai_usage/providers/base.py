@@ -38,15 +38,27 @@ class BaseProvider:
     config_id: str = ""
 
     def is_enabled(self, config: dict) -> bool:
-        for p in config.get("providers", []):
-            if p.get("id") == self.config_id:
-                return p.get("enabled", False)
-        return False
+        providers = config.get("providers")
+        if providers is None:
+            return True
+        if isinstance(providers, dict):
+            p_conf = providers.get(self.config_id, {})
+            return p_conf.get("enabled", True)
+        if isinstance(providers, list):
+            for p in providers:
+                if isinstance(p, dict) and p.get("id") == self.config_id:
+                    return p.get("enabled", False)
+            return False
+        return True
 
     def get_provider_config(self, config: dict) -> dict:
-        for p in config.get("providers", []):
-            if p.get("id") == self.config_id:
-                return p
+        providers = config.get("providers")
+        if isinstance(providers, dict):
+            return providers.get(self.config_id, {})
+        if isinstance(providers, list):
+            for p in providers:
+                if isinstance(p, dict) and p.get("id") == self.config_id:
+                    return p
         return {}
 
     async def fetch(self, config: dict) -> UsageResult:
