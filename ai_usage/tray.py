@@ -6,12 +6,14 @@ import os
 import struct
 import subprocess
 import sys
+import fcntl
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
 try:
     from dbus_fast.aio import MessageBus
+    from dbus_fast.constants import NameFlag, RequestNameReply
     from dbus_fast.service import ServiceInterface, dbus_property, method, signal, PropertyAccess
     from dbus_fast import Variant, Message, MessageType
 except ImportError:
@@ -24,6 +26,17 @@ except ImportError:
 
 from .main import fetch_all
 from .providers.base import UsageResult
+
+
+def acquire_singleton_lock() -> Optional[object]:
+    """Ensure only a single instance of ai-usage-tray runs at any time."""
+    lock_file_path = Path("/tmp/ai-usage-tray.lock")
+    try:
+        lock_file = open(lock_file_path, "w")
+        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock_file
+    except (BlockingIOError, OSError):
+        return None
 
 
 def format_tooltip(results: list[UsageResult], updated_at: str) -> str:
@@ -327,8 +340,17 @@ class AITrayDaemon:
         self.bus.export("/StatusNotifierItem", self.sni_iface)
         self.bus.export("/MenuBar", self.menu_iface)
 
-        # Request unique well-known name
-        await self.bus.request_name("org.kde.StatusNotifierItem-ai-usage")
+        # Request unique well-known name with DO_NOT_QUEUE
+        try:
+            reply = await self.bus.request_name(
+                "org.kde.StatusNotifierItem-ai-usage",
+                flags=NameFlag.DO_NOT_QUEUE,
+            )
+            if reply != RequestNameReply.PRIMARY_OWNER:
+                print("ai-usage-tray is already running on DBus.", file=sys.stderr)
+                return
+        except Exception as e:
+            print("Notice: request_name:", e)
 
         # Register with Ubuntu StatusNotifierWatcher
         try:
@@ -433,6 +455,12 @@ def run_tray(
     enabled_only: bool = True,
     interval_seconds: int = 300,
 ) -> None:
+    # Acquire singleton lock to prevent duplicate instances
+    lock = acquire_singleton_lock()
+    if lock is None:
+        print("Notice: ai-usage-tray is already running.", file=sys.stderr)
+        return
+
     daemon = AITrayDaemon(
         provider_names=provider_names,
         enabled_only=enabled_only,
@@ -442,6 +470,11 @@ def run_tray(
         asyncio.run(daemon.start())
     except (KeyboardInterrupt, SystemExit):
         pass
+    finally:
+        try:
+            lock.close()
+        except Exception:
+            pass
 
 
 def main():

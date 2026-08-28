@@ -18,11 +18,11 @@ mkdir -p "$HOME/.local/share/icons"
 cp "$DIR/assets/ai-usage.png" "$HOME/.local/share/icons/ai-usage.png"
 echo "🎨 Icon installed to ~/.local/share/icons/ai-usage.png"
 
-# 3. Install Desktop Launcher
-mkdir -p "$HOME/.local/share/applications" "$HOME/.config/autostart"
+# 3. Install Desktop Launcher & Clean Autostart
+mkdir -p "$HOME/.local/share/applications"
 cp "$DIR/assets/ai-usage-tray.desktop" "$HOME/.local/share/applications/ai-usage-tray.desktop"
-cp "$DIR/assets/ai-usage-tray.desktop" "$HOME/.config/autostart/ai-usage-tray.desktop"
-echo "🖥️ Desktop entry installed to applications & autostart"
+rm -f "$HOME/.config/autostart/ai-usage-tray.desktop"
+echo "🖥️ Desktop entry installed to ~/.local/share/applications"
 
 # 4. Install & Start Systemd User Service
 if command -v systemctl >/dev/null 2>&1; then
@@ -32,6 +32,11 @@ if command -v systemctl >/dev/null 2>&1; then
     systemctl --user enable ai-usage-tray.service
     systemctl --user restart ai-usage-tray.service
     echo "⚡ Systemd user service enabled and started!"
+else
+    # Fallback to XDG autostart if systemd is not available
+    mkdir -p "$HOME/.config/autostart"
+    cp "$DIR/assets/ai-usage-tray.desktop" "$HOME/.config/autostart/ai-usage-tray.desktop"
+    echo "⚡ XDG autostart configured"
 fi
 
 echo ""
