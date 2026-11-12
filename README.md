@@ -31,7 +31,7 @@ Supports **Google Antigravity (AGY)**, **Claude Code**, **OpenAI Codex**, **Gemi
 ```text
 $ ai-usage
 
-  Antigravity (AGY)  (oauth)  [Standard]  jason9075@gmail.com
+  Antigravity (AGY)  (oauth)  [Standard]  user@example.com
     Flash (Gemini 3.7 Flash (High))   94.0% left  [███████████████████░]  resets in 4h44m
     Claude & Pro models              100.0% left  [████████████████████]
 
@@ -40,7 +40,7 @@ $ ai-usage
     Weekly (7d)                       65.0% left  [█████████████░░░░░░░]  resets in 4d5h13m
     cost: $50.28 / $51.00 (monthly)
 
-  Codex  (oauth)  [plus]  ajle2721@gmail.com
+  Codex  (oauth)  [plus]  work@example.com
     Session (5h)                      46.0% left  [█████████░░░░░░░░░░░]  resets in 4h35m
     Weekly (7d)                       77.0% left  [███████████████░░░░░]  resets in 5d4h42m
 ```
